@@ -1,14 +1,32 @@
 # Git `file` transport
 
-1. `mkdir super`
-2. `cd super`
-3. `git init`
-4. `cd ..`
-5. `mkdir sub`
-6. `cd sub`
-7. `touch README.md`
-8. `git add README.md`
-9. `git commit -m "Add README"`
-10. `cd ..`
-11. `cd super`
-12. `git submodule add ../sub`
+See `repro.sh`.
+
+```sh
+cd super
+git submodule add ../sub
+```
+
+This results in:
+
+> fatal: transport 'file' not allowed
+
+This is a new limitation which seems to have come about as a result of a patch
+related to security.
+
+# Workaround
+
+`git -c protocol.file.allow=always submodule add ../sub`
+
+# Sources
+
+- https://bugs.launchpad.net/ubuntu/+source/git/+bug/1993586
+  - Mentions the `git -c protocol.file.allow=always submodule add …` workaround
+- https://github.blog/2022-10-18-git-security-vulnerabilities-announced/#cve-2022-39253
+  - GitHub blog announcing the Git CVE fixes including this one
+  - Links to the source of the security advisory which I've added below
+- https://github.com/git/git/security/advisories/GHSA-3wp6-j8xr-qw85
+  - The security advisory
+- https://git-scm.com/docs/git-config#Documentation/git-config.txt-protocolallow
+  - The Git setting for `protocol.file.allow`
+  - Wasn't clear to me this needs to go between `git` and `submodule`
